@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Build and Push"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.environment == 'staging' }}
+    environment: staging
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
+      
+      - name: Deploy to staging
+        run: |
+          kubectl apply -k k8s/overlays/staging
+          kubectl rollout status deployment/ml-pipeline-api-staging -n ml-pipeline-staging --timeout=300s
+      
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n ml-pipeline-staging
+          kubectl get svc -n ml-pipeline-staging
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: ${{ github.event.inputs.environment == 'production' }}
+    environment: production
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > ~/.kube/config
+      
+      - name: Deploy to production
+        run: |
+          kubectl apply -k k8s/overlays/production
+          kubectl rollout status deployment/ml-pipeline-api-production -n ml-pipeline-production --timeout=300s
+      
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n ml-pipeline-production
+          kubectl get svc -n ml-pipeline-production
+      
+      - name: Notify success
+        run: echo "✅ Production deployment complete!"
