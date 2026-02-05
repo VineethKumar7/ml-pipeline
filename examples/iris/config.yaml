@@ -1,0 +1,53 @@
+# Iris Example Configuration
+# Copy this to project root as config.yaml to use the iris example
+
+project:
+  name: iris-classifier
+  version: 1.0.0
+  description: Iris flower classification example
+
+model:
+  name: iris-classifier
+  framework: sklearn
+  module: examples.iris.model
+  class: ModelWrapper
+
+training:
+  experiment: iris-classification
+  mlflow_enabled: true
+  params:
+    n_estimators: 100
+    max_depth: 5
+    random_state: 42
+
+serving:
+  host: 0.0.0.0
+  port: 8000
+  workers: 4
+
+infrastructure:
+  mlflow:
+    enabled: true
+    port: 5000
+    backend_store: postgresql://mlflow:mlflow@postgres:5432/mlflow
+    artifact_store: s3://mlflow-artifacts
+  minio:
+    enabled: true
+    port: 9000
+    console_port: 9001
+    access_key: minioadmin
+    secret_key: minioadmin
+
+kubernetes:
+  enabled: false
+  namespace: ml-pipeline
+  replicas:
+    min: 2
+    max: 10
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
