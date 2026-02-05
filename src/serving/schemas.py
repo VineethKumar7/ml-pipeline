@@ -10,7 +10,9 @@ class PredictRequest(BaseModel):
     """Request schema for prediction endpoint."""
 
     features: List[Any] = Field(
-        ..., description="Input features for the model", example=[5.1, 3.5, 1.4, 0.2]
+        ...,
+        description="Input features for the model",
+        json_schema_extra={"example": [5.1, 3.5, 1.4, 0.2]},
     )
     model_version: Optional[str] = Field(
         default="latest", description="Model version to use (default: latest)"
