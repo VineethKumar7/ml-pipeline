@@ -1,6 +1,9 @@
 # Planning (internal only)
 PLANNING.md
 
+# Generated config (user creates their own)
+config.yaml
+
 # Python
 __pycache__/
 *.py[cod]
