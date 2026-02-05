@@ -1,0 +1,53 @@
+# Planning (internal only)
+PLANNING.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+*.log
+
+# Kubernetes secrets (local)
+k8s/overlays/*/secrets.yaml
+
+# Model artifacts (tracked in MLflow)
+models/
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.onnx
